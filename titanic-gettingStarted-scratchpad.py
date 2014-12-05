@@ -18,21 +18,22 @@ all_df = pd.concat([train_df, test_df])
 all_finite_age_df = all_df[np.isfinite(all_df['Age'])]
 
 # Calculate median (or mean?) age as a function of passenger class (and sex?)
-a1 = median(all_finite_age_df['Age'][all_finite_age_df['Pclass'] == 1])
-a2 = median(all_finite_age_df['Age'][all_finite_age_df['Pclass'] == 2])
-a3 = median(all_finite_age_df['Age'][all_finite_age_df['Pclass'] == 3])
+a1 = median(all_finite_age_df.Age[all_finite_age_df.Pclass == 1])
+a2 = median(all_finite_age_df.Age[all_finite_age_df.Pclass == 2])
+a3 = median(all_finite_age_df.Age[all_finite_age_df.Pclass == 3])
 
-af1 = median(all_finite_age_df['Age'][np.logical_and(all_finite_age_df['Pclass'] == 1, all_finite_age_df['Sex'] == 'female')])
-af2 = median(all_finite_age_df['Age'][np.logical_and(all_finite_age_df['Pclass'] == 2, all_finite_age_df['Sex'] == 'female')])
-af3 = median(all_finite_age_df['Age'][np.logical_and(all_finite_age_df['Pclass'] == 3, all_finite_age_df['Sex'] == 'female')])
+af1 = median(all_finite_age_df.Age[np.logical_and(all_finite_age_df.Pclass == 1, all_finite_age_df.Sex == 'female')])
+af2 = median(all_finite_age_df.Age[np.logical_and(all_finite_age_df.Pclass == 2, all_finite_age_df.Sex == 'female')])
+af3 = median(all_finite_age_df.Age[np.logical_and(all_finite_age_df.Pclass == 3, all_finite_age_df.Sex == 'female')])
 
-am1 = median(all_finite_age_df['Age'][np.logical_and(all_finite_age_df['Pclass'] == 1, all_finite_age_df['Sex'] == 'male')])
-am2 = median(all_finite_age_df['Age'][np.logical_and(all_finite_age_df['Pclass'] == 2, all_finite_age_df['Sex'] == 'male')])
-am3 = median(all_finite_age_df['Age'][np.logical_and(all_finite_age_df['Pclass'] == 3, all_finite_age_df['Sex'] == 'male')])
+am1 = median(all_finite_age_df.Age[np.logical_and(all_finite_age_df.Pclass == 1, all_finite_age_df.Sex == 'male')])
+am2 = median(all_finite_age_df.Age[np.logical_and(all_finite_age_df.Pclass == 2, all_finite_age_df.Sex == 'male')])
+am3 = median(all_finite_age_df.Age[np.logical_and(all_finite_age_df.Pclass == 3, all_finite_age_df.Sex == 'male')])
 
 # Fill in the missing ages
-train_df['Age'][np.logical_and(np.isfinite(train_df['Age']), train_df['Pclass'] == 1)] = a1
-'
+train_df.loc[np.logical_and(train_df.Age.isnull(), train_df.Pclass == 1), 'Age'] = a1
+train_df.loc[np.logical_and(train_df.Age.isnull(), train_df.Pclass == 2), 'Age'] = a2
+train_df.loc[np.logical_and(train_df.Age.isnull(), train_df.Pclass == 3), 'Age'] = a3
 
 train_female_df = train_df[train_df['Sex'] == 'female']
 train_male_df = train_df[train_df['Sex'] == 'male']
@@ -43,9 +44,23 @@ train_male_survived_df = train_male_df[train_male_df["Survived"] == 1]
 train_male_died_df = train_male_df[train_male_df["Survived"] == 0]
 
 
-figure
-plot(test['Pclass'], test['Age'], '.')
+figure()
+plot(train_female_survived_df.Age, train_female_survived_df.Fare, 'ko')
+plot(train_female_died_df.Age, train_female_died_df.Fare, 'rx')
+title('Females')
+xlabel('Age')
+ylabel('Fare')
+# legend('Survived', 'Died') # TBR
+grid()
 
+figure()
+plot(train_male_survived_df.Age, train_male_survived_df.Fare, 'ko')
+plot(train_male_died_df.Age, train_male_died_df.Fare, 'rx')
+title('Males')
+xlabel('Age')
+ylabel('Fare')
+# legend('Survived', 'Died') # TBR
+grid()
 
 # Data cleanup
 
