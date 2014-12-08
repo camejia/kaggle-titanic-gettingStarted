@@ -2,8 +2,10 @@
 
 import pandas as pd
 import numpy as np
+import pylab
 # import csv as csv
 # from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier
 
 # Load the training file into a dataframe
 train_df = pd.read_csv('C:\Users\Chris\Documents\camejia_svn\Python\kaggle\\titanic-gettingStarted\\train.csv', header=0)
@@ -13,64 +15,110 @@ test_df = pd.read_csv('C:\Users\Chris\Documents\camejia_svn\Python\kaggle\\titan
 
 all_df = pd.concat([train_df, test_df])
 
-# First task is to fill in age
+# Column headings are PassengerId, Survived, Pclass, Name, Sex, Age, SibSp, Parch, Ticket, Fare, Cabin, Embarked
+# For the columns I plan to use, make sure the data is all valid
+print 'Pclass.unique(): ', all_df.Pclass.unique()
+print 'Sex.unique(): ', all_df.Sex.unique()
+print 'SibSp.unique(): ', all_df.SibSp.unique()
+print 'Parch.unique(): ', all_df.Parch.unique()
+print 'Age.isnull().any()', all_df.Age.isnull().any()
+print 'Fare.isnull().any()', all_df.Fare.isnull().any()
 
-all_finite_age_df = all_df[np.isfinite(all_df['Age'])]
+# I know survival rates were very different for females vs. male,
+# so I'll process them separately
 
-# Calculate median (or mean?) age as a function of passenger class (and sex?)
-a1 = median(all_finite_age_df.Age[all_finite_age_df.Pclass == 1])
-a2 = median(all_finite_age_df.Age[all_finite_age_df.Pclass == 2])
-a3 = median(all_finite_age_df.Age[all_finite_age_df.Pclass == 3])
+for Sex in ['female', 'male']:
+    for Pclass in [1, 2, 3]:
+        print 'Sex: ', Sex, ', Pclass: ', Pclass
+        print train_df[(train_df.Sex == Sex) & (train_df.Pclass == Pclass)].corr()
 
-af1 = median(all_finite_age_df.Age[np.logical_and(all_finite_age_df.Pclass == 1, all_finite_age_df.Sex == 'female')])
-af2 = median(all_finite_age_df.Age[np.logical_and(all_finite_age_df.Pclass == 2, all_finite_age_df.Sex == 'female')])
-af3 = median(all_finite_age_df.Age[np.logical_and(all_finite_age_df.Pclass == 3, all_finite_age_df.Sex == 'female')])
+# Find cases where a variable is correlated to Survived with |x| > 0.3
+# Sex == 'female' & Pclass == 3 -> Fare
+# Sex == 'male' & Pclass == 2 -> Age and Parch
 
-am1 = median(all_finite_age_df.Age[np.logical_and(all_finite_age_df.Pclass == 1, all_finite_age_df.Sex == 'male')])
-am2 = median(all_finite_age_df.Age[np.logical_and(all_finite_age_df.Pclass == 2, all_finite_age_df.Sex == 'male')])
-am3 = median(all_finite_age_df.Age[np.logical_and(all_finite_age_df.Pclass == 3, all_finite_age_df.Sex == 'male')])
+f3d = train_df[(test_df.Sex == 'female') & (test_df.Pclass == 3) & (test_df.Survived == 0)]
+f3s = train_df[(test_df.Sex == 'female') & (test_df.Pclass == 3) & (test_df.Survived == 1)]
 
-# Fill in the missing ages
-train_df.loc[np.logical_and(train_df.Age.isnull(), train_df.Pclass == 1), 'Age'] = a1
-train_df.loc[np.logical_and(train_df.Age.isnull(), train_df.Pclass == 2), 'Age'] = a2
-train_df.loc[np.logical_and(train_df.Age.isnull(), train_df.Pclass == 3), 'Age'] = a3
+m2d = train_df[(test_df.Sex == 'male') & (test_df.Pclass == 2) & (test_df.Survived == 0)]
+m2s = train_df[(test_df.Sex == 'male') & (test_df.Pclass == 2) & (test_df.Survived == 1)]
 
-train_female_df = train_df[train_df['Sex'] == 'female']
-train_male_df = train_df[train_df['Sex'] == 'male']
-
-train_female_survived_df = train_female_df[train_female_df["Survived"] == 1]
-train_female_died_df = train_female_df[train_female_df["Survived"] == 0]
-train_male_survived_df = train_male_df[train_male_df["Survived"] == 1]
-train_male_died_df = train_male_df[train_male_df["Survived"] == 0]
+pylab.figure()
+pylab.plot(f3s.Age, f3s.Fare, 'ko')
+pylab.plot(f3d.Age, f3d.Fare, 'rx')
+pylab.title('Females in 3rd Class')
+pylab.xlabel('Age')
+pylab.ylabel('Fare')
+pylab.grid()
+pylab.show()
 
 
-figure()
-plot(train_female_survived_df.Age, train_female_survived_df.Fare, 'ko')
-plot(train_female_died_df.Age, train_female_died_df.Fare, 'rx')
-title('Females')
-xlabel('Age')
-ylabel('Fare')
-# legend('Survived', 'Died') # TBR
-grid()
+pylab.figure()
+pylab.plot(m2s.Age, m2s.Parch, 'ko')
+pylab.plot(m2d.Age, m2d.Parch, 'rx')
+pylab.title('Males in 2nd Class')
+pylab.xlabel('Age')
+pylab.ylabel('Parch')
+pylab.grid()
+pylab.show()
 
-figure()
-plot(train_male_survived_df.Age, train_male_survived_df.Fare, 'ko')
-plot(train_male_died_df.Age, train_male_died_df.Fare, 'rx')
-title('Males')
-xlabel('Age')
-ylabel('Fare')
-# legend('Survived', 'Died') # TBR
-grid()
+
+all_female1_df = all_df[(all_df.Sex == 'female') & (all_df.Pclass == 1)]
+all_female2_df = all_df[(all_df.Sex == 'female') & (all_df.Pclass == 2)]
+all_female3_df = all_df[(all_df.Sex == 'female') & (all_df.Pclass == 3)]
+
+all_male1_df = all_df[(all_df.Sex == 'male') & (all_df.Pclass == 1)]
+all_male2_df = all_df[(all_df.Sex == 'male') & (all_df.Pclass == 2)]
+all_male3_df = all_df[(all_df.Sex == 'male') & (all_df.Pclass == 3)]
+
+# I'll just use the median Age and Fare for a given Pclass
+# Note that I use train and test data (i.e. not just train data)
+# to calculate the value to fill in
+
+all_female1_df = all_female1_df.fillna(all_female1_df.median())
+all_female2_df = all_female2_df.fillna(all_female2_df.median())
+all_female3_df = all_female3_df.fillna(all_female3_df.median())
+
+all_male1_df = all_male1_df.fillna(all_male1_df.median())
+all_male2_df = all_male2_df.fillna(all_male2_df.median())
+all_male3_df = all_male3_df.fillna(all_male3_df.median())
+
+# Look at the correlations for each Sex and Pclass combination
+# Which have large values (|x|>0.25) in the Survived column (or row)?
+
+print 'all_female1_df.corr()', all_female1_df.corr()
+all_female2_df.corr()
+all_female3_df.corr()
+all_male1_df.corr()
+all_male2_df.corr()
+all_male3_df.corr()
+
+pylab.figure()
+pylab.plot(all_male2_df.Age, all_male2_df.Parch, 'ko')
+pylab.plot(all_male2_df.Age, all_male2_df.Parch, 'rx')
+pylab.title('Females')
+pylab.xlabel('Age')
+pylab.ylabel('Parch')
+pylab.grid()
+pylab.show()
+
+test_df.Survived = test_df.PassengerId
+test_df[test_df.Sex == 'female'].Survived = 1
+test_df[test_df.Sex == 'male'].Survived = 0
+
+test_df[(test_df.Sex == 'female') & (test_df.Pclass == 3) & ((test_df.Fare > 20.7) | (test_df.Age > 38.5))] = 0
+test_df[(test_df.Sex == 'male') & (test_df.Pclass == 2) & (test_df.Age < 12)] = 1
+
+# sklearn.linear_model.LogisticRegression
 
 # Data cleanup
 
-# Convert all strings to integer classifiers.
-# female = 0, male = 1
-train_df['Gender'] = train_df['Sex'].map( {'female': 0, 'male': 1} ).astype(int)
-test_df['Gender'] = test_df['Sex'].map( {'female': 0, 'male': 1} ).astype(int)
-
-temp1 = train_df.Embarked.dropna()
-temp2 = test_df.Embarked.dropna()
+## Convert all strings to integer classifiers.
+## female = 0, male = 1
+#train_df['Gender'] = train_df['Sex'].map( {'female': 0, 'male': 1} ).astype(int)
+#test_df['Gender'] = test_df['Sex'].map( {'female': 0, 'male': 1} ).astype(int)
+#
+#temp1 = train_df.Embarked.dropna()
+#temp2 = test_df.Embarked.dropna()
 
 
 ### Data cleanup
