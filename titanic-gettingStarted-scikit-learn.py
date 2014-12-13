@@ -3,6 +3,7 @@
 import pandas as pd
 import numpy as np
 from sklearn import svm
+import pylab
 
 # Load the training file into a dataframe
 train_df = pd.read_csv('C:\Users\Chris\Documents\GitHub\kaggle-titanic-gettingStarted\\train.csv', header=0)
@@ -12,6 +13,33 @@ test_df = pd.read_csv('C:\Users\Chris\Documents\GitHub\kaggle-titanic-gettingSta
 
 all_df = pd.concat([train_df, test_df])
 
+# Just for fun, add a few plots
+
+f3d = train_df[(train_df.Sex == 'female') & (train_df.Pclass == 3) & (train_df.Survived == 0)]
+f3s = train_df[(train_df.Sex == 'female') & (train_df.Pclass == 3) & (train_df.Survived == 1)]
+
+m2d = train_df[(train_df.Sex == 'male') & (train_df.Pclass == 2) & (train_df.Survived == 0)]
+m2s = train_df[(train_df.Sex == 'male') & (train_df.Pclass == 2) & (train_df.Survived == 1)]
+
+pylab.figure()
+pylab.plot(f3s.Age, f3s.Fare, 'ko')
+pylab.plot(f3d.Age, f3d.Fare, 'rx')
+pylab.title('Females in 3rd Class')
+pylab.xlabel('Age')
+pylab.ylabel('Fare')
+pylab.grid()
+pylab.show()
+
+pylab.figure()
+pylab.plot(m2s.Age, m2s.Parch, 'ko')
+pylab.plot(m2d.Age, m2d.Parch, 'rx')
+pylab.title('Males in 2nd Class')
+pylab.xlabel('Age')
+pylab.ylabel('Parch')
+pylab.grid()
+pylab.show()
+
+
 # Column headings are PassengerId, Survived, Pclass, Name, Sex, Age, SibSp, Parch, Ticket, Fare, Cabin, Embarked
 # For the columns I plan to use, make sure the data is all valid
 print 'Pclass.unique(): ', all_df.Pclass.unique()
@@ -20,6 +48,7 @@ print 'SibSp.unique(): ', all_df.SibSp.unique()
 print 'Parch.unique(): ', all_df.Parch.unique()
 print 'Age.isnull().any()', all_df.Age.isnull().any()
 print 'Fare.isnull().any()', all_df.Fare.isnull().any()
+print
 
 # Should try to avoid using terms that are highly correlated
 all_df.corr()
@@ -45,19 +74,23 @@ print 'train_df.AgeFilled.isnull().any()', train_df.AgeFilled.isnull().any()
 print 'train_df.FareFilled.isnull().any()', train_df.FareFilled.isnull().any()
 print 'test_df.AgeFilled.isnull().any()', test_df.AgeFilled.isnull().any()
 print 'test_df.FareFilled.isnull().any()', test_df.FareFilled.isnull().any()
+print
 
 # Convert string 'Sex' to a number 'Gender' so I can use scikit-learn
 train_df['Gender'] = train_df.Sex.map( {'female': 0, 'male': 1} )
 test_df['Gender'] = test_df.Sex.map( {'female': 0, 'male': 1} )
 
-train_np = train_df[['Pclass', 'SibSp', 'Parch', 'AgeFilled', 'FareFilled', 'Gender']].values
-test_np = test_df[['Pclass', 'SibSp', 'Parch', 'AgeFilled', 'FareFilled', 'Gender']].values
+# train_np = train_df[['Pclass', 'SibSp', 'Parch', 'AgeFilled', 'FareFilled', 'Gender']].values
+# test_np = test_df[['Pclass', 'SibSp', 'Parch', 'AgeFilled', 'FareFilled', 'Gender']].values
+train_np = train_df[['Pclass', 'AgeFilled', 'FareFilled', 'Gender']].values
+test_np = test_df[['Pclass', 'AgeFilled', 'FareFilled', 'Gender']].values
 train_surv_np = train_df.Survived.values
 
 # Check that no NaN's made it through
 print 'np.isnan(train_np).any()', np.isnan(train_np).any()
 print 'np.isnan(test_np).any()', np.isnan(test_np).any()
 print 'np.isnan(train_surv_np).any()', np.isnan(train_surv_np).any()
+print
 
 print 'Training...'
 clf = svm.SVC()
