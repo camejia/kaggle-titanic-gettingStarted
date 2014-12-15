@@ -80,7 +80,7 @@ for Sex in ['female', 'male']:
         train_surv_np = train_df[(train_df.Sex == Sex) & (train_df.Pclass == Pclass)].Survived.values
 
         print 'Training...'
-        clf = svm.SVC()
+        clf = svm.LinearSVC()
         clf.fit(train_np, train_surv_np)
 
         print 'Predicting...'
