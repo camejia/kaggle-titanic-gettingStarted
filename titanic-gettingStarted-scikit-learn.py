@@ -60,6 +60,8 @@ train_df['AgeFilled'] = train_df.Age
 train_df['FareFilled'] = train_df.Fare
 test_df['AgeFilled'] = test_df.Age
 test_df['FareFilled'] = test_df.Fare
+train_df['Family'] = train_df.SibSp + train_df.Parch
+test_df['Family'] = test_df.SibSp + test_df.Parch
 
 for Sex in ['female', 'male']:
     for Pclass in [1, 2, 3]:
@@ -75,8 +77,8 @@ test_df['Gender'] = test_df.Sex.map( {'female': 0, 'male': 1} )
 test_df['Survived'] = test_df.Gender
 for Sex in ['female', 'male']:
     for Pclass in [1, 2, 3]:
-        train_np = train_df[(train_df.Sex == Sex) & (train_df.Pclass == Pclass)][['FareFilled']].values
-        test_np = test_df[(test_df.Sex == Sex) & (test_df.Pclass == Pclass)][['FareFilled']].values
+        train_np = train_df[(train_df.Sex == Sex) & (train_df.Pclass == Pclass)][['Family']].values
+        test_np = test_df[(test_df.Sex == Sex) & (test_df.Pclass == Pclass)][['Family']].values
         train_surv_np = train_df[(train_df.Sex == Sex) & (train_df.Pclass == Pclass)].Survived.values
 
         print 'Training...'
