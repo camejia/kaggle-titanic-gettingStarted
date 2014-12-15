@@ -74,18 +74,18 @@ test_df['Gender'] = test_df.Sex.map( {'female': 0, 'male': 1} )
 
 test_df['Survived'] = test_df.Gender
 for Sex in ['female', 'male']:
-    f3d = train_df[(train_df.Sex == 'female') & (train_df.Pclass == 3) & (train_df.Survived == 0)]
-    train_np = train_df[train_df.Sex == Sex][['AgeFilled', 'FareFilled']].values
-    test_np = test_df[test_df.Sex == Sex][['AgeFilled', 'FareFilled']].values
-    train_surv_np = train_df[train_df.Sex == Sex].Survived.values
+    for Pclass in [1, 2, 3]:
+        train_np = train_df[(train_df.Sex == Sex) & (train_df.Pclass == Pclass)][['FareFilled']].values
+        test_np = test_df[(test_df.Sex == Sex) & (test_df.Pclass == Pclass)][['FareFilled']].values
+        train_surv_np = train_df[(train_df.Sex == Sex) & (train_df.Pclass == Pclass)].Survived.values
 
-    print 'Training...'
-    clf = svm.SVC()
-    clf.fit(train_np, train_surv_np)
+        print 'Training...'
+        clf = svm.SVC()
+        clf.fit(train_np, train_surv_np)
 
-    print 'Predicting...'
-    test_surv_np = clf.predict(test_np)
+        print 'Predicting...'
+        test_surv_np = clf.predict(test_np)
 
-    test_df.loc[test_df.Sex == Sex, 'Survived'] = test_surv_np
+        test_df.loc[(test_df.Sex == Sex) & (test_df.Pclass == Pclass), 'Survived'] = test_surv_np
 
 test_df[['PassengerId', 'Survived']].to_csv('C:\Users\Chris\Documents\GitHub\kaggle-titanic-gettingStarted\scikit-learn.csv', index=False)
