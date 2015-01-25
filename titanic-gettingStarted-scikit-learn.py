@@ -15,11 +15,15 @@ all_df = pd.concat([train_df, test_df])
 
 # Just for fun, add a few plots
 
+# TODO: Use pandas groupby throughout.
+
 f3d = train_df[(train_df.Sex == 'female') & (train_df.Pclass == 3) & (train_df.Survived == 0)]
 f3s = train_df[(train_df.Sex == 'female') & (train_df.Pclass == 3) & (train_df.Survived == 1)]
 
 m2d = train_df[(train_df.Sex == 'male') & (train_df.Pclass == 2) & (train_df.Survived == 0)]
 m2s = train_df[(train_df.Sex == 'male') & (train_df.Pclass == 2) & (train_df.Survived == 1)]
+
+# TODO: Use pandas plotting
 
 pylab.figure()
 pylab.plot(f3s.Age, f3s.Fare, 'ko')
@@ -77,8 +81,8 @@ test_df['Gender'] = test_df.Sex.map( {'female': 0, 'male': 1} )
 test_df['Survived'] = test_df.Gender
 for Sex in ['female', 'male']:
     for Pclass in [1, 2, 3]:
-        train_np = train_df[(train_df.Sex == Sex) & (train_df.Pclass == Pclass)][['AgeFilled']].values
-        test_np = test_df[(test_df.Sex == Sex) & (test_df.Pclass == Pclass)][['AgeFilled']].values
+        train_np = train_df[(train_df.Sex == Sex) & (train_df.Pclass == Pclass)][['FareFilled']].values
+        test_np = test_df[(test_df.Sex == Sex) & (test_df.Pclass == Pclass)][['FareFilled']].values
         train_surv_np = train_df[(train_df.Sex == Sex) & (train_df.Pclass == Pclass)].Survived.values
 
         print 'Training...'
